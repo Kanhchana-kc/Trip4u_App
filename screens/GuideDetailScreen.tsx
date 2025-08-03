@@ -208,6 +208,23 @@ const GuideDetailScreen = ({ route, navigation }: Props) => {
             ))}
           </View>
         )}
+        {extraAttributes.travelTrip.length > 0 && (
+          <View className="border-t border-gray-200 pt-4">
+            <Text className="text-lg font-semibold text-gray-800 mb-3
+            ">
+              Travel Tips
+            </Text>
+
+            {extraAttributes.travelTrip.map((trip, index) => (
+              <View key={index} className="flex-row items-start mb-2">
+                <Text className="text-gray-800 text-lg font-bold mr-2">•</Text>
+                <Text className="text-gray-800 text-base font-medium flex-1">
+                  {trip}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
