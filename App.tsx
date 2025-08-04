@@ -6,15 +6,36 @@ import TabNavigator from './navigation/TabNavigator';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RootNavigator from './navigation/RootNavigator';
+import { ClerkProvider } from '@clerk/clerk-expo';
+import * as SecureStore from "expo-secure-store"
+
+const tokenCache={
+  async getToken(key:string){
+    try{
+      return await SecureStore.getItemAsync(key)
+    }catch(err){
+    return null;
+  }
+},
+ async saveToken(key:string,value:string){
+  try{
+    return await SecureStore.setItemAsync(key,value)
+  
+  }catch(err){
+    return
+  }
+ }
+}
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <ClerkProvider publishableKey='pk_test_c2ltcGxlLXRvYWQtNDMuY2xlcmsuYWNjb3VudHMuZGV2JA' 
+    tokenCache={tokenCache}
+    >
       <NavigationContainer>
         <RootNavigator />
-        <StatusBar style="auto" />
       </NavigationContainer>
-    </GestureHandlerRootView>
+    </ClerkProvider>
   );
 }
 
