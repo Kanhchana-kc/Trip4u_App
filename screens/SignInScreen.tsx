@@ -1,7 +1,8 @@
 import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import GoogleSignIn from '../components/GoogleSignIn';
 
-const SignInScreen = () => {
+const SignInScreen = ({ navigation }) => {
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,13 +13,12 @@ const SignInScreen = () => {
   };
 
   const onSignUp = () => {
-    // Navigate to Sign Up screen
-    console.log('Go to Sign Up screen');
+    navigation.navigate('SignUp'); // Navigate to SignUpScreen
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Signin</Text>
+      <Text style={styles.title}>Sign In</Text>
 
       <TextInput
         style={styles.input}
@@ -48,8 +48,10 @@ const SignInScreen = () => {
           <Text style={styles.signupText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
+      <GoogleSignIn/>
     </View>
   );
+  
 };
 
 export default SignInScreen;
