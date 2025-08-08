@@ -1,112 +1,119 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
-import GoogleSignIn from '../components/GoogleSignIn';
+import { useSignIn } from "@clerk/clerk-expo";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/RootNavigator";
+import React, { useState } from "react";
+import GoogleSignIn from "../components/GoogleSignIn";
 
-const SignInScreen = ({ navigation }) => {
-  const [emailAddress, setEmailAddress] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-  const onContinue = () => {
-    // Handle sign-in logic here
-    console.log('Sign in pressed:', emailAddress, password);
-  };
+export default function SignInScreen() {
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const navigation = useNavigation<NavigationProp>();
+  const [emailAddress, setEmailAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const onSignUp = () => {
-    navigation.navigate('SignUp'); // Navigate to SignUpScreen
+  const onSignInPress = async () => {
+    if (!isLoaded) return;
+
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: emailAddress,
+        password,
+      });
+
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        // Navigation to Main is handled by RootNavigator
+      } else {
+        console.error("Sign-in incomplete:", JSON.stringify(signInAttempt, null, 2));
+        setError("Sign-in incomplete. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Sign-in error:", JSON.stringify(err, null, 2));
+      setError(err.errors[0]?.message || "Sign-in failed");
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign In</Text>
-
       <TextInput
         style={styles.input}
         autoCapitalize="none"
-        placeholder="Enter Email"
-        onChangeText={setEmailAddress}
         value={emailAddress}
+        placeholder="Enter email"
+        onChangeText={setEmailAddress}
+        keyboardType="email-address"
       />
-
       <TextInput
         style={styles.input}
-        secureTextEntry
-        placeholder="Enter Password"
-        onChangeText={setPassword}
         value={password}
+        placeholder="Enter password"
+        secureTextEntry
+        onChangeText={setPassword}
       />
-
       {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <TouchableOpacity style={styles.button} onPress={onContinue}>
+      <TouchableOpacity style={styles.button} onPress={onSignInPress}>
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Don't have an account?</Text>
-        <TouchableOpacity onPress={onSignUp}>
-          <Text style={styles.signupText}>Sign Up</Text>
+      <View style={styles.linkContainer}>
+        <Text style={styles.linkText}>Don't have an account? </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
+          <Text style={[styles.linkText, { color: "#FF5722" }]}>Sign Up</Text>
         </TouchableOpacity>
       </View>
+
       <GoogleSignIn/>
     </View>
   );
-  
-};
-
-export default SignInScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 24,
-    textAlign: 'center',
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+    width: "100%",
     padding: 12,
-    marginBottom: 14,
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
   },
   button: {
-    backgroundColor: '#FF3B1D',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
+    backgroundColor: "#FF5722",
+    padding: 12,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+    marginTop: 10,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "bold",
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 18,
+  linkContainer: {
+    flexDirection: "row",
+    marginTop: 20,
   },
-  footerText: {
-    fontSize: 14,
-    color: '#000',
-  },
-  signupText: {
-    fontSize: 14,
-    color: '#FF3B1D',
-    marginLeft: 4,
-    fontWeight: '600',
+  linkText: {
+    fontSize: 16,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
-    textAlign: 'center',
   },
 });

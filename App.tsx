@@ -1,10 +1,9 @@
-import 'react-native-gesture-handler'; // must be at the very top
+
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
 import "./global.css"
 import TabNavigator from './navigation/TabNavigator';
 import { NavigationContainer } from '@react-navigation/native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RootNavigator from './navigation/RootNavigator';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import * as SecureStore from "expo-secure-store"

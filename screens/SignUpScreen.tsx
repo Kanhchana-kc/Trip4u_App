@@ -1,180 +1,152 @@
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, { useState } from 'react';
-import { useSignUp } from '@clerk/clerk-expo';
+import { useSignUp } from "@clerk/clerk-expo";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/RootNavigator";
+import React, { useState } from "react";
 
-const SignUpScreen = ({ navigation }) => {
-  const [emailAddress, setEmailAddress] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
+  const navigation = useNavigation<NavigationProp>();
+  const [emailAddress, setEmailAddress] = useState("");
+  const [password, setPassword] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
 
   const onSignUpPress = async () => {
     if (!isLoaded) return;
+
     try {
       await signUp.create({
         emailAddress,
         password,
       });
 
-      await signUp.prepareEmailAddressVerification({
-        strategy: 'email_code',
-      });
-
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setPendingVerification(true);
-    } catch (err) {
-      console.log('SignUp error:', err);
-      setError(err.errors?.[0]?.message || 'Sign Up failed');
+    } catch (err: any) {
+      console.error("Sign-up error:", JSON.stringify(err, null, 2));
+      setError(err.errors[0]?.message || "Sign-up failed");
     }
   };
 
   const onVerifyPress = async () => {
     if (!isLoaded) return;
-    const trimmedCode = code.trim();
 
     try {
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
-        code: trimmedCode,
+        code,
       });
 
-      console.log('Verification code entered:', trimmedCode);
-      console.log('Verification status:', signUpAttempt.status);
-
-      if (signUpAttempt.status === 'complete') {
+      if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
-        navigation.navigate('Home'); // Change to your main screen name
+        // Navigation to Main is handled by RootNavigator
       } else {
-        setError('Verification incomplete, Please try again!!');
+        console.error("Verification incomplete:", JSON.stringify(signUpAttempt, null, 2));
+        setError("Verification incomplete. Please try again.");
       }
-    } catch (err) {
-      console.log('Verification error:', err);
-      setError(
-        err?.errors?.[0]?.message ||
-        err?.longMessage ||
-        'Verification failed'
-      );
+    } catch (err: any) {
+      console.error("Verification error:", JSON.stringify(err, null, 2));
+      setError(err.errors[0]?.message || "Verification failed");
     }
   };
 
-  const onSignIn = () => {
-    navigation.goBack();
-  };
+  if (pendingVerification) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Verify Your Email</Text>
+        <TextInput
+          style={styles.input}
+          value={code}
+          placeholder="Enter your verification code"
+          onChangeText={setCode}
+        />
+        {/* {error ? <Text style={styles.error}>{error}</Text> : null} */}
+        <TouchableOpacity style={styles.button} onPress={onVerifyPress}>
+          <Text>Verify</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {pendingVerification ? (
-        <>
-          <Text>Verify your email</Text>
-          <TextInput
-            style={styles.input}
-            value={code}
-            onChangeText={setCode}
-            placeholder="Enter your verification code"
-            keyboardType="numeric"
-          />
-          {/* {error ? <Text style={styles.error}>{error}</Text> : null} */}
-          <TouchableOpacity style={styles.button} onPress={onVerifyPress}>
-            <Text style={styles.buttonText}>Verify</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <Text style={styles.title}>Sign Up</Text>
-
-          <TextInput
-            style={styles.input}
-            autoCapitalize="none"
-            placeholder="Enter Email"
-            onChangeText={setEmailAddress}
-            value={emailAddress}
-          />
-
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            placeholder="Enter Password"
-            onChangeText={setPassword}
-            value={password}
-          />
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <TouchableOpacity style={styles.button} onPress={onSignUpPress}>
-            <Text style={styles.buttonText}>Continue</Text>
-          </TouchableOpacity>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account?</Text>
-            <TouchableOpacity onPress={onSignIn}>
-              <Text style={styles.signupText}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
+      <Text style={styles.title}>Sign Up</Text>
+      <TextInput
+        style={styles.input}
+        autoCapitalize="none"
+        value={emailAddress}
+        placeholder="Enter email"
+        onChangeText={setEmailAddress}
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        value={password}
+        placeholder="Enter password"
+        secureTextEntry
+        onChangeText={setPassword}
+      />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <TouchableOpacity style={styles.button} onPress={onSignUpPress}>
+        <Text style={styles.buttonText}>Continue</Text>
+      </TouchableOpacity>
+      <View style={styles.linkContainer}>
+        <Text style={styles.linkText}>Already have an account? </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
+          <Text style={[styles.linkText, { color: "#FF5722" }]}>Sign In</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-};
-
-export default SignUpScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 24,
-    textAlign: 'center',
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+    width: "100%",
     padding: 12,
-    marginBottom: 14,
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
   },
   button: {
-    backgroundColor: '#FF3B1D',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
+    backgroundColor: "#FF5722",
+    padding: 12,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+    marginTop: 10,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "bold",
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 18,
+  linkContainer: {
+    flexDirection: "row",
+    marginTop: 20,
   },
-  footerText: {
-    fontSize: 14,
-    color: '#000',
-  },
-  signupText: {
-    fontSize: 14,
-    color: '#FF3B1D',
-    marginLeft: 4,
-    fontWeight: '600',
+  linkText: {
+    fontSize: 16,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
-    textAlign: 'center',
   },
 });

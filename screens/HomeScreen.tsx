@@ -1,18 +1,20 @@
+import React, { useCallback, useState, useEffect } from "react";
 import {
-  SafeAreaView,
-  StyleSheet,
   View,
-  Image,
   Text,
+  Image,
   TouchableOpacity,
-} from 'react-native';
-import React from 'react';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import { ScrollView } from 'react-native-gesture-handler';
-import FeaturedGuides from '../components/FeaturedGuides';
-import PopularDestination from '../components/PopularDestination';
-import WeekendTrips from '../components/WeekendTrips';
+  ScrollView,
+  TextInput,
+} from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WeekendTrips from "../components/WeekendTrips";
+import FeaturedGuides from "../components/FeaturedGuides";
+import { useUser } from "@clerk/clerk-expo";
+import axios from "axios";
+import PopularDestination from "../components/PopularDestination";
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -42,7 +44,7 @@ const HomeScreen = () => {
         <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
           <Image
             source={require('../assets/logo.png')}
-            className="w-36 h-9"
+            className="w-32 h-20  "
             resizeMode="contain"
           />
           <View className="flex-row items-center space-x-3">
@@ -109,4 +111,3 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({});
