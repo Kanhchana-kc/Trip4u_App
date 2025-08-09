@@ -15,6 +15,7 @@ import FeaturedGuides from "../components/FeaturedGuides";
 import { useUser } from "@clerk/clerk-expo";
 import axios from "axios";
 import PopularDestination from "../components/PopularDestination";
+import NewTrip from "./NewTripScreen";
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -73,7 +74,7 @@ const HomeScreen = () => {
             </Text>
             <TouchableOpacity
               className="bg-orange-500 px-6 py-2 rounded-full mt-4"
-              //   onPress={() => navigation.navigate('NewTrip')}
+                onPress={() => navigation.navigate('NewTrip')}
             >
               <Text className="text-white font-semibold text-base">
                 Create new trip plan
