@@ -112,7 +112,8 @@ const tripSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  backround: {
+  background: {
+    // <-- fixed typo here
     type: String,
     required: true,
   },
@@ -123,7 +124,7 @@ const tripSchema = new mongoose.Schema({
     default: 0,
   },
   expenses: [expenseSchema],
-  PlacesToVisit: [placeSchema],
+  placesToVisit: [placeSchema], // fixed camelCase here for consistency
   itinerary: [itinerarySchema],
   createdAt: { type: Date, default: Date.now },
 });

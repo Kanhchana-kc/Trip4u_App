@@ -32,10 +32,10 @@ const NewTripScreen = () => {
     startDate?: string;
     endDate?: string;
   }>({});
-  const [displayStart, setDisplayStart] = useState<string>('');
-  const [displayEnd, setDisplayEnd] = useState<string>('');
+  const [displayStart, setDisplayStart] = useState('');
+  const [displayEnd, setDisplayEnd] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
-  const [chosenLocation, setChosenLocation] = useState<string | null>(null);
+  const [chosenLocation, setChosenLocation] = useState('');
   const [isLoading, setIsLoading] = useState(false); // New loading state
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -165,14 +165,8 @@ const NewTripScreen = () => {
 
       // Send request to backend
       const response = await axios.post(
-        'http://localhost:3000/api/trips',
-        tripData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        'http://192.168.8.245:3000/api/trips',
+        tripData
       );
 
       const createdTrip = response.data.trip;
@@ -322,6 +316,8 @@ const NewTripScreen = () => {
       </Modal>
 
       {/* Search Overlay Modal */}
+      {/* Search Overlay Modal */}
+      {/* Search Overlay Modal */}
       <Modal animationType="fade" visible={searchVisible}>
         <SafeAreaView className="flex-1 bg-white pt-10 px-4">
           {/* Header */}
@@ -337,11 +333,47 @@ const NewTripScreen = () => {
             </Text>
           </View>
 
+          {/* Popular Places Chips */}
+          <View
+            style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}
+          >
+            {[
+              'Phnom Penh',
+              'Siem Reap',
+              'Sihanoukville',
+              'Battambang',
+              'Kampot',
+              'Kep',
+              'Angkor Wat',
+            ].map((place) => (
+              <TouchableOpacity
+                key={place}
+                style={{
+                  backgroundColor: '#f1f1f1',
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 20,
+                  marginRight: 8,
+                  marginBottom: 8,
+                }}
+                onPress={() => {
+                  setChosenLocation(place);
+                  setSearchVisible(false);
+                }}
+              >
+                <Text style={{ color: '#333' }}>{place}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           {/* Google Places Autocomplete */}
           <GooglePlacesAutocomplete
             placeholder="Search for a place"
+            minLength={2}
+            autoFocus={false}
             fetchDetails={true}
             enablePoweredByContainer={false}
+            debounce={200}
             onPress={(data, details = null) => {
               if (data?.description) {
                 setChosenLocation(data.description);
@@ -351,12 +383,11 @@ const NewTripScreen = () => {
             query={{
               key: GOOGLE_API_KEY,
               language: 'en',
-              // components: 'country:us', // optional
+              components: 'country:KH', // restrict to Cambodia
+              types: '(cities)',
             }}
             styles={{
-              container: {
-                flex: 0,
-              },
+              container: { flex: 1 },
               textInputContainer: {
                 flexDirection: 'row',
                 backgroundColor: '#f1f1f1',
@@ -375,9 +406,10 @@ const NewTripScreen = () => {
               listView: {
                 marginTop: 10,
                 backgroundColor: '#fff',
+                zIndex: 1000,
+                elevation: 3,
               },
             }}
-            textInputProps={{}}
           />
         </SafeAreaView>
       </Modal>
