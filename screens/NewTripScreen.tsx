@@ -345,6 +345,19 @@ const NewTripScreen = () => {
               'Kampot',
               'Kep',
               'Angkor Wat',
+              // Add more international places below
+              'Seoul', // South Korea
+              'Busan',
+              'Tokyo', // Japan
+              'Kyoto',
+              'Osaka',
+              'New York', // USA
+              'Los Angeles',
+              'San Francisco',
+              'London', // UK
+              'Manchester',
+              'Paris', // France
+              'Berlin', // Germany
             ].map((place) => (
               <TouchableOpacity
                 key={place}
