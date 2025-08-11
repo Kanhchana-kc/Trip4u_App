@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
 const activitiesSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -9,7 +9,7 @@ const activitiesSchema = new mongoose.Schema({
   reviews: [
     {
       authorName: String,
-      rating: String,
+      rating: Number, // changed to Number for numeric rating
       text: String,
     },
   ],
@@ -18,19 +18,19 @@ const activitiesSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  briefDesription: { type: String },
+  briefDescription: { type: String }, // fixed typo here
   geometry: {
     location: {
-      lat: { type: String, required: true },
-      lng: { type: String, required: true },
+      lat: { type: Number, required: true }, // changed to Number
+      lng: { type: Number, required: true },
     },
     southwest: {
       lat: {
-        type: String,
+        type: Number,
         required: true,
       },
       lng: {
-        type: String,
+        type: Number,
         required: true,
       },
     },
@@ -51,7 +51,7 @@ const placeSchema = new mongoose.Schema({
   reviews: [
     {
       authorName: String,
-      rating: String,
+      rating: Number, // changed to Number
       text: String,
     },
   ],
@@ -60,19 +60,19 @@ const placeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  briefDesription: { type: String },
+  briefDescription: { type: String }, // fixed typo
   geometry: {
     location: {
-      lat: { type: String, required: true },
-      lng: { type: String, required: true },
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true },
     },
     southwest: {
       lat: {
-        type: String,
+        type: Number,
         required: true,
       },
       lng: {
-        type: String,
+        type: Number,
         required: true,
       },
     },
@@ -113,9 +113,8 @@ const tripSchema = new mongoose.Schema({
     required: true,
   },
   background: {
-    // <-- fixed typo here
     type: String,
-    required: true,
+    required: true, // consider making optional if sometimes no image
   },
   host: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   travelers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -124,7 +123,7 @@ const tripSchema = new mongoose.Schema({
     default: 0,
   },
   expenses: [expenseSchema],
-  placesToVisit: [placeSchema], // fixed camelCase here for consistency
+  placesToVisit: [placeSchema],
   itinerary: [itinerarySchema],
   createdAt: { type: Date, default: Date.now },
 });
